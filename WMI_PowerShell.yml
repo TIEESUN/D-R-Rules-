@@ -1,0 +1,87 @@
+detect:
+  events: 
+  - NEW_PROCESS
+  - WEL
+  op: or
+  rules:
+  - op: and
+    rules:
+    - case sensitive: false
+      op: is
+      path: Event/System/EventID
+      value: '4662'
+    - case sensitive: false
+      op: is
+      path: Event/EventData/ObjectType
+      value: WMI Namespace
+    - case sensitive: false
+      op: contains
+      path: Event/EventData/ObjectName
+      value: subscription
+  - op: and
+    rules:
+    - case sensitive: false
+      op: is
+      path: Event/System/EventID
+      value: '1121'
+    - op: or
+      rules:
+      - case sensitive: false
+        op: ends with
+        path: Event/EventData/ProcessName
+        value: \wmiprvse.exe
+      - case sensitive: false
+        op: ends with
+        path: Event/EventData/ProcessName
+        value: \psexesvc.exe
+  - op: and
+    rules:
+    - op: and
+      rules:
+      - case sensitive: false
+        op: is
+        path: Event/System/EventID
+        value: '5145'
+      - case sensitive: false
+        op: ends with
+        path: Event/EventData/RelativeTargetName
+        value: \wbem\wbemcomn.dll
+    - case sensitive: false
+      not: true
+      op: ends with
+      path: Event/EventData/SubjectUserName
+      value: $
+  - op: and
+    rules:
+    - case sensitive: false
+      op: is
+      path: Event/System/EventID
+      value: '4624'
+    - case sensitive: false
+      op: ends with
+      path: Event/EventData/ProcessName
+      value: \WmiPrvSE.exe
+
+  - op: and
+    rules:
+      - op: is
+        path: event/FILE_PATH
+        value: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+      - op: ends with
+        path: event/FILE_PATH
+        value: \powershell.exe
+  target: log
+respond:
+- action: report
+  metadata:
+    author: Sawood(TAGTREX), Shehroz(TAGTREX)
+    description: Detects WMI AND POWERSHELL 
+    falsepositives:
+    - Unknown (data set is too small; further testing needed)
+    level: medium
+    tags:
+    - attack.persistence
+    - attack.lateral_movement
+    - attack.t1047
+    - attack.t1569.002
+    - attack.t1021.002
