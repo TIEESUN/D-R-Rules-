@@ -1,0 +1,22 @@
+detect:
+  event: WEL
+  op: and
+  rules:
+    - op: is
+      path: event/EVENT/System/EventID
+      value: '2003'
+    - op: is
+      path: event/EVENT/System/Channel
+      value: Microsoft-Windows-DriverFrameworks-UserMode/Operational
+
+respond:
+- action: report
+  metadata:
+    author: Sawood(TAGTREX), Shehroz(TAGTREX) 
+    description: Detecting Hardware Addition
+    falsepositives:
+    - Regular flash drive 
+    level: medium
+    tags:
+    - attack.initail_access
+  name: Suspicious Hardware Detected
