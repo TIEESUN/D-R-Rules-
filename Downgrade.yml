@@ -1,0 +1,52 @@
+detect:
+  event: WEL
+  op: and
+  rules:
+    - op: is
+      path: event/EVENT/System/EventID
+      value: '4688'  # PowerShell process creation event
+    - op: contains
+      path: event/EVENT/EventData/CommandLine
+      value: '-version 2.'  # PowerShell downgrade attempt
+  - op: or
+    rules:  
+      - op: is
+        path: event/EVENT/System/EventID
+        value: '4776'  # Kerberos Auth Service Ticket Request
+      - op: is
+        path: event/EVENT/System/EventID
+        value: '4624'  # NTLM_Auth_Success
+      - op: is
+        path: event/EVENT/System/EventID
+        value: '4625'  # NTLM_Auth_failed
+  - op: and
+    rules:
+      - op: contains
+        path: event/EVENT/EventData/AuthenticationPackageName
+        value: 'Kerberos'
+      - op: contains
+        path: event/EVENT/EventData/AuthenticationPackageName
+        value: 'NTLM'
+  - op: or
+    rules:
+      - op: contains
+        path: event/EVENT/EventData/TargetUserName
+        value: '$'
+      - op: contains
+        path: event/EVENT/EventData/TargetUserName
+        value: 'anonymous'
+      - op: contains
+        path: event/EVENT/EventData/TargetUserName
+        value: 'Guest'
+respond:
+  - action: report
+    metadata:
+      author: Sawood(TAGTREX), SHEHROZ(TAGTREX)
+      description: Detects potential downgrade attacks via PowerShell and NTLM/Kerberos
+      falsepositives:
+        - False positives may occur due to legitimate use of PowerShell or authentication mechanisms.
+      level: high
+      tags:
+        - attack.defense_evasion
+        - attack.t1059.001
+  name: Downgrade Attack Detection
