@@ -46,7 +46,7 @@ detect:
           op: is
           path: Event/EventData/LogonProcessName
           value: Advapi
-  op: or
+  - op: or
     rules:
     - case sensitive: false
       not: true
