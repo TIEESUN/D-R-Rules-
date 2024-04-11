@@ -1,0 +1,61 @@
+detect:
+  op: or
+  rules:
+    - op: is
+      event: WEL
+      path: Event/System/EventID
+      value: '4648' # A logon was attempted using explicit credentials.
+      with child:
+        op: and
+        event: WEL
+        rules:
+        - op: is
+          path: Event/System/EventID
+          value: '4624' # An account was successfully logged on.
+        - op: is
+          path: Event/EventData/LogonType
+          value: '9' # New Credentials
+        - op: is
+          path: Event/EventData/LogonProcessName
+          value: seclogo # Secondary logon 
+        with child:
+          op: is
+          event: WEL
+          path: Event/System/EventID
+          value: '4672' # Special privileges assigned to new logon. (Logged-on user, not impersonated user)
+
+    - op: and
+      event: WEL
+      rules: 
+      - op: is
+        path: Event/System/EventID
+        value: '4624' # An account was successfully logged on.
+      - op: is
+          path: Event/EventData/LogonType
+          value: '3' #LOGON ON NETWORK
+      - op: is
+        path: event/EVENT/EventData/authenticationpackagename
+        value: NTLM
+        with child:
+          op: is
+          event: WEL
+          path: Event/System/EventID
+          value: '4672' # Special privileges assigned to new logon. TARGET
+
+
+    - op: is
+      event: WEL
+      path: Event/System/EventID
+      value: '4776' # DC-The computer attempted to validate the credentials for an account
+respond:
+- action: report
+  metadata:
+    author: Sawood(TAGTREX), Shehroz(TAGTREX)
+    description: Detecting PTH using system telemtry
+    falsepositives:
+    - Administrator activity
+    level: High
+    tags:
+    - attack.lateral_movement
+    - attack.t1550.002
+  name: Pass The Hash Detected 
