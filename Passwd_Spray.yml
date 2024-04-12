@@ -1,47 +1,74 @@
 detect:
-  events:
+events:
   - NEW_PROCESS
-  - EXISTING_PROCESS
+  - EXISITING_PROCESS
   - WEL
-  op: or
-  rules:
-  - with events:
-    - op: and
-      rules:
-      - op: is
-          path: event/EVENT/System/EventID
-          value: '4625'
-      - op: is
-        path: event/EVENT/EventData/LogonType
-        value: '3'
-      count: 5
-      within: 60
-  
+op: or
+rules:
   - op: and
     rules:
-    - op: is windows
-    - op: and
-      rules:
-      - op: or
-        rules:
-        - case sensitive: false
-          op: ends with
-          path: event/FILE_PATH
-          value: \dsacls.exe
-        - case sensitive: false
+      - op: is windows
+        with events:
+          event: WEL
           op: is
-          path: event/ORIGINAL_FILE_NAME
-          value: DSACLS.EXE
+          path: event/EVENT/System/EventID
+          value: '4625'
+          count: 5
+          within: 60
+      - op: is windows
+        with events:
+          event: WEL
+          op: is
+          path: event/EVENT/EventData/LogonType
+          value: '3'
+          count: 5
+          within: 60
+      - op: is windows
+        with events:
+          event: WEL
+          op: is
+          path: event/NETWORK_ACTIVITY/?/DESTINATION/IP_ADDRESS
+          value: ''
+          count: 5
+          within: 60
+      - op: is windows
+        with events:
+          event: WEL
+          not: true
+          op: is
+          path: routing/TargetUserName
+          value: $
+          count: 5
+          within: 60
+  - op: and
+    rules:
+      - op: is windows
       - op: and
         rules:
-        - case sensitive: false
-          op: contains
-          path: event/COMMAND_LINE
-          value: '/user:'
-        - case sensitive: false
-          op: contains
-          path: event/COMMAND_LINE
-          value: '/passwd:'
+          - op: or
+            rules:
+              - case sensitive: false
+                op: ends with
+                path: event/FILE_PATH
+                value: \dsacls.exe
+              - case sensitive: false
+                op: is
+                path: event/ORIGINAL_FILE_NAME
+                value: DSACLS.EXE
+          - op: and
+            rules:
+              - case sensitive: false
+                op: contains
+                path: event/COMMAND_LINE
+                value: '/user:'
+              - case sensitive: false
+                op: contains
+                path: event/COMMAND_LINE
+                value: '/passwd:'
+  - case sensitive: false
+    op: contains
+    path: event/COMMAND_LINE
+    value: crackmapexec
 respond:
 - action: report
 
