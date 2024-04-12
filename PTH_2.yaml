@@ -1,52 +1,52 @@
 detect:
-  op: or
-  rules:
-    - op: is
-      event: WEL
-      path: Event/System/EventID
-      value: '4648' # A logon was attempted using explicit credentials.
-      with child:
-        op: and
-        event: WEL
-        rules:
+ event: WEL
+op: or
+rules:
+  - op: is
+    path: Event/System/EventID
+    value: '4648'
+    with child:
+      op: and
+      rules:
         - op: is
           path: Event/System/EventID
-          value: '4624' # An account was successfully logged on.
+          value: '4624'
         - op: is
           path: Event/EventData/LogonType
-          value: '9' # New Credentials
+          value: '9'
         - op: is
           path: Event/EventData/LogonProcessName
-          value: seclogo # Secondary logon 
-        with child:
-          op: is
-          event: WEL
-          path: Event/System/EventID
-          value: '4672' # Special privileges assigned to new logon. (Logged-on user, not impersonated user)
-
-    - op: and
-      event: WEL
-      rules: 
+          value: seclogo
+      with child:
+        op: is
+        path: Event/System/EventID
+        value: '4672'
+  - op: and
+    rules:
       - op: is
         path: Event/System/EventID
-        value: '4624' # An account was successfully logged on.
+        value: '4624'
       - op: is
-          path: Event/EventData/LogonType
-          value: '3' #LOGON ON NETWORK
+        path: Event/EventData/LogonType
+        value: '3'
       - op: is
         path: event/EVENT/EventData/authenticationpackagename
         value: NTLM
         with child:
           op: is
-          event: WEL
           path: Event/System/EventID
-          value: '4672' # Special privileges assigned to new logon. TARGET
-
-
-    - op: is
-      event: WEL
-      path: Event/System/EventID
-      value: '4776' # DC-The computer attempted to validate the credentials for an account
+          value: '4672'
+  - op: is
+    path: Event/System/EventID
+    value: '4776'
+  - case sensitive: false
+    op: contains
+    path: event/COMMAND_LINE
+    value: crackmapexec
+  - case sensitive: false
+    op: contains
+    path: event/COMMAND_LINE
+    value: impacket-psexec -hashes
 respond:
 - action: report
   metadata:
