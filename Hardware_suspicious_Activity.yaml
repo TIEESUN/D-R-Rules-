@@ -1,0 +1,34 @@
+event: WEL
+op: is
+path: event/EVENT/System/EventID
+value: '6416'
+with descendant:
+  op: or
+  rules:
+    - op: contains
+      event: NEW_PROCESS
+      path: event/EVENT/EventData/ProcessName
+      value: notepad.exe
+      case sensitive: false
+    - op: contains
+      event: NEW_PROCESS
+      path: event/EVENT/EventData/ProcessName
+      value: powershell.exe
+      case sensitive: false
+    - op: contains
+      event: NEW_PROCESS
+      path: event/EVENT/EventData/ProcessName
+      value: cmd.exe
+      case sensitive: false
+- action: report
+  metadata:
+    author: Sawood(TAGTREX), Shehroz(TAGTREX)
+    description: Suspicious Hardware Activity Detected if Event ID 6416 and process access
+    falsepositives: >-
+      False positives may occur due to legitimate use of notepad, powershell, or
+      cmd.
+    level: medium
+    tags:
+      - attack.initial_access
+  name: Suspicious Hardware Activity Detected
+S
